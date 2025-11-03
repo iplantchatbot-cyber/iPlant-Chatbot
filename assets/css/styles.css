@@ -341,6 +341,10 @@
             text-align: center;
             border-bottom: 1px solid #3a3a3a;
             position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .chat-header img {
@@ -350,35 +354,55 @@
 
         .clear-chat-btn {
             position: absolute;
-            right: 1rem;
+            left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            background: transparent;
-            color: #a0a0a0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(42, 42, 42, 0.6);
             border: 1px solid #3a3a3a;
-            padding: 0.4rem 0.75rem;
-            border-radius: 8px;
+            padding: 0;
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
+            font-size: 0; /* hide any stray characters in original HTML */
+            color: #d7d7d7;
+            backdrop-filter: blur(6px);
+            transition: transform .18s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease, color .2s ease;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
         }
+        .clear-chat-btn::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            background: no-repeat center/contain url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'><path d='M9 3h6l1 2h4v2H4V5h4l1-2zm-2 6h2v9H7V9zm4 0h2v9h-2V9zm4 0h2v9h-2V9z'/></svg>");
+        }
+        .clear-chat-btn::after { content: none; }
         .clear-chat-btn:hover {
-            color: #ececec;
+            color: #ffffff;
             border-color: #10b981;
+            background: rgba(48, 48, 48, 0.7);
+            box-shadow: 0 10px 24px rgba(16,185,129,0.20);
+            transform: translateY(calc(-50% - 1px)) scale(1.06);
         }
         .clear-chat-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
         body.light-mode .clear-chat-btn {
-            color: #555;
+            color: #2a2a2a;
             border-color: #e0e0e0;
-            background: #fff;
+            background: rgba(255,255,255,0.85);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.08);
         }
         body.light-mode .clear-chat-btn:hover {
-            color: #2a2a2a;
+            color: #111827;
             border-color: #059669;
-            background: #f8f8f8;
+            background: #ffffff;
+            box-shadow: 0 12px 24px rgba(16,185,129,0.18);
         }
 
         /* Modal: Clear chat confirmation */
@@ -708,3 +732,11 @@
             /* iOS safe area padding to avoid UI overlap */
             .input-container { padding-bottom: max(0.25rem, env(safe-area-inset-bottom)); }
         }\n    
+            .chat-header { padding: 1rem; }
+            .clear-chat-btn { left: 0.75rem; width: 36px; height: 36px; }
+            .clear-chat-btn::before { width: 18px; height: 18px; }
+            .clear-chat-btn::after { content: none; }
+            .chat-header { padding: 0.85rem; }
+            .clear-chat-btn { left: 0.5rem; width: 34px; height: 34px; }
+            .clear-chat-btn::before { width: 17px; height: 17px; }
+            .clear-chat-btn::after { content: none; }
