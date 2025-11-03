@@ -6,6 +6,9 @@
     <title>iPlant - AI Assistant</title>
     <link rel="icon" href="logo5.png" type="image/png">
     <link rel="apple-touch-icon" href="logo5.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -14,8 +17,33 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            background: #1a1a1a;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        }
+
+        body.light-mode {
+            color: #2a2a2a;
+        }
+        /* ----- Enhanced visuals (overrides) ----- */
+        body {
+            background: radial-gradient(1200px 800px at 10% 10%, rgba(16,185,129,0.12), transparent 60%),
+                        radial-gradient(1200px 800px at 90% 30%, rgba(59,130,246,0.10), transparent 60%),
+                        #1a1a1a;
+            transition: background 0.5s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+        body.light-mode {
+            background: radial-gradient(1200px 800px at 10% 10%, rgba(16,185,129,0.15), transparent 60%),
+                        radial-gradient(1200px 800px at 90% 30%, rgba(59,130,246,0.12), transparent 60%),
+                        #f5f5f5;
+        }
+        @keyframes bgFloat {
+            0% { background-position: 0 0, 0 0, 0 0; }
+            50% { background-position: 10px -10px, -12px 16px, 0 0; }
+            100% { background-position: 0 0, 0 0, 0 0; }
+        }
+        body { animation: bgFloat 18s ease-in-out infinite; }
+        /* Restore layout props with new font */
+        body {
             color: #ececec;
             min-height: 100vh;
             display: flex;
@@ -23,13 +51,75 @@
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            transition: background 0.3s ease, color 0.3s ease;
         }
 
-        body.light-mode {
-            background: #f5f5f5;
-            color: #2a2a2a;
+        .theme-toggle:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 8px 24px rgba(16,185,129,0.25); }
+        .theme-icon.active { transform: scale(1.2) rotate(12deg); }
+
+        .logo-container img { filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35)); transition: transform .4s ease, filter .4s ease; }
+        .logo-container img:hover { transform: translateY(-4px) rotate(-2deg) scale(1.03); filter: drop-shadow(0 10px 24px rgba(16,185,129,0.35)); }
+        
+        /* Smooth logo crossfade when switching themes */
+        .brand-logo { transition: opacity .28s ease, transform .28s ease; }
+        .brand-logo.switching { opacity: 0; transform: scale(.98); }
+
+        .welcome-title {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            background: linear-gradient(90deg, #10b981, #60a5fa, #10b981);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            background-size: 200% 100%;
+            animation: titleSheen 6s ease-in-out infinite;
         }
+        @keyframes titleSheen { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .suggestion-card {
+            background: rgba(42,42,42,0.65);
+            border-radius: 14px;
+            backdrop-filter: blur(8px);
+            transform: translateY(8px);
+            opacity: 0;
+            animation: cardIn 700ms cubic-bezier(.2,.8,.2,1) forwards;
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
+        }
+        .suggestion-card:nth-child(1){ animation-delay: .05s; }
+        .suggestion-card:nth-child(2){ animation-delay: .12s; }
+        .suggestion-card:nth-child(3){ animation-delay: .20s; }
+        .suggestion-card:nth-child(4){ animation-delay: .28s; }
+        .suggestion-card:nth-child(5){ animation-delay: .36s; }
+        @keyframes cardIn { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .suggestion-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 16px 40px rgba(16,185,129,0.18), 0 6px 18px rgba(0,0,0,0.35); border-color: rgba(16,185,129,0.4); }
+        body.light-mode .suggestion-card { background: rgba(255,255,255,0.7); border-color: #e6e6e6; }
+        body.light-mode .suggestion-card:hover { box-shadow: 0 14px 34px rgba(16,185,129,0.18), 0 6px 16px rgba(0,0,0,0.08); }
+
+        .send-button {
+            background: linear-gradient(90deg, #10b981, #22c55e, #60a5fa);
+            background-size: 200% 100%;
+            color: #0b1324;
+            transition: transform .2s ease, box-shadow .2s ease, background-position .6s ease;
+            overflow: hidden;
+        }
+        .send-button:hover:not(:disabled) { background-position: 100% 0; transform: translateY(-50%) scale(1.05); box-shadow: 0 10px 26px rgba(16,185,129,0.35); }
+        .send-button::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(120px 120px at var(--x,50%) var(--y,50%), rgba(255,255,255,0.35), transparent 60%);
+            opacity: 0; transition: opacity .4s ease;
+            pointer-events: none;
+        }
+        .send-button:active::after { opacity: 1; transition: opacity .2s ease; }
+
+        .chat-input:focus { border-color: #10b981; background: #333; box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
+
+        /* Refined hover for chat messages: avoid layout shift */
+        .message { transition: filter .15s ease; }
+        .message:hover { filter: brightness(1.02); }
+
+        /* Emphasize only the bubble, not the whole row */
+        .message .message-content { transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, filter .18s ease; cursor: text; }
+        .message:not(.user) .message-content:hover { background: #262626; border-color: #158f6a; box-shadow: 0 6px 16px rgba(16,185,129,0.12); }
+        .message.user .message-content:hover { filter: brightness(1.03); box-shadow: 0 6px 16px rgba(16,185,129,0.12); }
+        body.light-mode .message:not(.user) .message-content:hover { background: #fafafa; border-color: #a7f3d0; box-shadow: 0 6px 14px rgba(16,185,129,0.10); }
 
         .theme-toggle {
             position: fixed;
@@ -306,7 +396,9 @@
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.6);
+            background: radial-gradient(1200px 800px at 20% 20%, rgba(16,185,129,0.15), transparent 60%),
+                        rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(3px);
             display: none;
             align-items: center;
             justify-content: center;
@@ -315,22 +407,27 @@
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: #2a2a2a;
+            background: linear-gradient(180deg, rgba(42,42,42,0.9), rgba(32,32,32,0.96));
             border: 1px solid #3a3a3a;
-            border-radius: 12px;
+            border-radius: 16px;
             width: 100%;
-            max-width: 420px;
-            padding: 1.25rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            max-width: 460px;
+            padding: 1.25rem 1.25rem 1rem;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+            transform: translateY(8px) scale(0.98);
+            opacity: 0;
+            transition: transform .25s cubic-bezier(.2,.8,.2,1), opacity .25s ease, box-shadow .25s ease;
         }
+        .modal-overlay.active .modal { transform: translateY(0) scale(1); opacity: 1; }
         body.light-mode .modal {
-            background: #fff;
-            border-color: #e0e0e0;
+            background: linear-gradient(180deg, #ffffff, #f9fafb);
+            border-color: #e9ecef;
             color: #2a2a2a;
         }
         .modal h3 {
             margin-bottom: 0.5rem;
             font-size: 1.125rem;
+            font-weight: 700;
         }
         .modal p {
             margin-bottom: 1rem;
@@ -344,22 +441,43 @@
         }
         .modal-btn {
             border: 1px solid #3a3a3a;
-            background: transparent;
+            background: rgba(255,255,255,0.02);
             color: #ececec;
-            padding: 0.5rem 0.9rem;
-            border-radius: 8px;
+            padding: 0.55rem 1rem;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
             font-size: 0.95rem;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            position: relative;
+            overflow: hidden;
         }
         body.light-mode .modal-btn { color: #2a2a2a; border-color: #e0e0e0; }
-        .modal-btn.cancel:hover { border-color: #999; }
+        body.light-mode .modal-btn.cancel { background: #ffffff; }
+        body.light-mode .modal-btn.cancel:hover { background: #f6f6f6; border-color: #d8d8d8; }
+        body.light-mode .modal-btn.confirm { color: #0b1324; }
+        .modal-btn:hover { transform: translateY(-1px); }
+        .modal-btn.cancel { background: transparent; }
+        .modal-btn.cancel:hover { border-color: #999; background: rgba(255,255,255,0.04); }
         .modal-btn.confirm {
             border: none;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: #fff;
+            background: linear-gradient(90deg, #10b981, #22c55e, #60a5fa);
+            background-size: 200% 100%;
+            color: #0b1324;
+            box-shadow: 0 10px 24px rgba(16,185,129,0.25);
         }
-        .modal-btn.confirm:hover { filter: brightness(1.05); }
+        .modal-btn.confirm:hover { filter: brightness(1.04); background-position: 100% 0; }
+        .modal-btn.confirm:active { transform: translateY(0); }
+        .modal-btn::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(100px 100px at var(--x,50%) var(--y,50%), rgba(255,255,255,0.35), transparent 60%);
+            opacity: 0; transition: opacity .35s ease;
+            pointer-events: none;
+        }
+        .modal-btn:active::after { opacity: 1; transition: opacity .2s ease; }
 
         body.light-mode .chat-header {
             border-bottom-color: #e0e0e0;
@@ -600,8 +718,7 @@
             .theme-toggle { top: 0.75rem; right: 0.75rem; }
             /* iOS safe area padding to avoid UI overlap */
             .input-container { padding-bottom: max(0.25rem, env(safe-area-inset-bottom)); }
-        }
-    </style>
+        }\n    </style>
 </head>
 <body>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
@@ -611,7 +728,7 @@
     <div class="welcome-screen" id="welcomeScreen">
         <div class="logo-container">
             <a href="#" class="logo-home-link" aria-label="Go to home" title="Home">
-                <img src="logo.png" alt="iPlant AI Assistant" onerror="this.style.display='none'">
+                <img class="brand-logo" src="logo.png" alt="iPlant AI Assistant" onerror="this.style.display='none'">
             </a>
         </div>
 
@@ -656,7 +773,7 @@
     <div class="chat-mode" id="chatMode">
         <div class="chat-header">
             <a href="#" class="logo-home-link" aria-label="Go to home" title="Home">
-                <img src="logo.png" alt="iPlant AI Assistant" onerror="this.style.display='none'">
+                <img class="brand-logo" src="logo.png" alt="iPlant AI Assistant" onerror="this.style.display='none'">
             </a>
             <button id="clearChatBtn" class="clear-chat-btn" aria-label="Clear chat" title="Clear chat">🧹 Clear</button>
         </div>
@@ -784,6 +901,24 @@
 
             sessionStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
         });
+
+        // Logo switching (light: logo.png, dark: logo5.png) with crossfade
+        (function preloadLogos(){ try { new Image().src='logo.png'; new Image().src='logo5.png'; } catch(_){} })();
+        function swapLogo(img, src){
+            if (!img || img.getAttribute('src') === src) return;
+            img.classList.add('switching');
+            const onLoad = () => { img.classList.remove('switching'); img.removeEventListener('load', onLoad); };
+            img.addEventListener('load', onLoad);
+            img.setAttribute('src', src);
+            setTimeout(() => img.classList.remove('switching'), 300);
+        }
+        function updateLogosFromTheme(){
+            const dark = !document.body.classList.contains('light-mode');
+            const src = dark ? 'logo5.png' : 'logo.png';
+            document.querySelectorAll('.brand-logo').forEach(img => swapLogo(img, src));
+        }
+        updateLogosFromTheme();
+        themeToggle.addEventListener('click', () => setTimeout(updateLogosFromTheme, 0));
 
         function showError(message) {
             errorMessage.textContent = message;
@@ -1095,6 +1230,15 @@
 
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
+        });
+
+        // Button ripple coordinate helper
+        document.querySelectorAll('.send-button, .primary-btn, .modal-btn').forEach(btn => {
+            btn.addEventListener('pointerdown', (e) => {
+                const rect = btn.getBoundingClientRect();
+                btn.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                btn.style.setProperty('--y', `${e.clientY - rect.top}px`);
+            });
         });
 
         // Test connection on load (optional)
