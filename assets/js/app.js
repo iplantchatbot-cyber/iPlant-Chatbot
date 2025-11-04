@@ -174,15 +174,100 @@
             if (isUser) {
                 messageContent.textContent = content;
             } else {
-                // Format bot messages nicely
-                messageContent.innerHTML = formatBotMessage(content);
+                // Format bot messages with improved lists and RTL/LTR handling
+                messageContent.innerHTML = formatBotMessageImproved(content);
             }
+            // Ensure mixed Arabic/English text remains readable
+            try { messageContent.setAttribute('dir', 'auto'); } catch {}
             
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(messageContent);
             chatMessages.appendChild(messageDiv);
             
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Improved formatter: builds proper lists even when items are separated by blank lines
+        // and adds dir="auto" to handle mixed Arabic/English text.
+        function formatBotMessageImproved(content) {
+            // Basic bold conversion
+            content = String(content || '').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+            const lines = content.split(/\r?\n/);
+            const parts = [];
+            // Protect LTR fragments (URLs, emails, phone numbers) inside RTL paragraphs/lists
+            const protectLTR = (txt) => {
+                if (!txt) return '';
+                txt = txt.replace(/(https?:\/\/[^\s)]+|www\.[^\s)]+)/gi, (m) => `<bdi dir="ltr">${m}</bdi>`);
+                txt = txt.replace(/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g, (m) => `<bdi dir="ltr">${m}</bdi>`);
+                txt = txt.replace(/(\+?\s*\d[\d\s\-()]{5,}\d)/g, (m) => `<bdi dir="ltr">${m.trim()}</bdi>`);
+                return txt;
+            };
+            let i = 0;
+
+            const numRe = /^\s*(\d+)[\.)]\s+(.+)/;        // 1. text or 1) text
+            const bulletRe = /^\s*([\-\*•–—])\s+(.+)/;    // -, *, •, –, —
+
+            function flush(type, items) {
+                if (!items || !items.length) return;
+                const tag = type === 'ol' ? 'ol' : 'ul';
+                const lis = items.map(t => `<li dir="auto">${t}</li>`).join('');
+                parts.push(`<${tag} dir="auto">${lis}</${tag}>`);
+            }
+
+            while (i < lines.length) {
+                const raw = lines[i];
+                const t = raw.trim();
+
+                // Ordered list block (allow blank lines within)
+                if (numRe.test(t)) {
+                    const items = [];
+                    while (i < lines.length) {
+                        const l = lines[i].trim();
+                        if (l === '') { i++; continue; }
+                        const m = l.match(numRe);
+                        if (!m) break;
+                        items.push(protectLTR(m[2].trim()));
+                        i++;
+                        while (i < lines.length && lines[i].trim() === '') i++;
+                    }
+                    flush('ol', items);
+                    continue;
+                }
+
+                // Unordered list block (allow blank lines within)
+                if (bulletRe.test(t)) {
+                    const items = [];
+                    while (i < lines.length) {
+                        const l = lines[i].trim();
+                        if (l === '') { i++; continue; }
+                        const m = l.match(bulletRe);
+                        if (!m) break;
+                        items.push(protectLTR(m[2].trim()));
+                        i++;
+                        while (i < lines.length && lines[i].trim() === '') i++;
+                    }
+                    flush('ul', items);
+                    continue;
+                }
+
+                // Paragraph block
+                if (t !== '') {
+                    const para = [t];
+                    i++;
+                    while (i < lines.length && lines[i].trim() !== '') {
+                        para.push(lines[i].trim());
+                        i++;
+                    }
+                    parts.push(`<p dir="auto">${protectLTR(para.join(' '))}</p>`);
+                    continue;
+                }
+
+                // Empty line
+                i++;
+            }
+
+            return parts.join('');
         }
 
         function switchToChatMode() {

@@ -362,7 +362,7 @@
             justify-content: center;
             width: 40px;
             height: 40px;
-            background: rgba(42, 42, 42, 0.6);
+            background: rgba(241, 71, 71, 0.6);
             border: 1px solid #3a3a3a;
             padding: 0;
             border-radius: 50%;
@@ -395,7 +395,7 @@
         body.light-mode .clear-chat-btn {
             color: #2a2a2a;
             border-color: #e0e0e0;
-            background: rgba(255,255,255,0.85);
+            background: rgba(241, 71, 71, 0.6);
             box-shadow: 0 8px 18px rgba(0,0,0,0.08);
         }
         body.light-mode .clear-chat-btn:hover {
@@ -564,6 +564,7 @@
             word-wrap: break-word;
             border: 1px solid #3a3a3a;
             white-space: pre-wrap;
+            unicode-bidi: plaintext; /* Better RTL/LTR mixing */
         }
 
         body.light-mode .message-content {
@@ -598,7 +599,10 @@
         .message-content ol,
         .message-content ul {
             margin: 0.75rem 0;
-            padding-left: 1.5rem;
+            padding-left: 1.5rem;        /* LTR fallback */
+            padding-inline-start: 1.5rem; /* Respect text direction */
+            margin-inline-start: 1rem;    /* Pull list away from card edge in RTL/LTR */
+            list-style-position: outside; /* Keep markers outside but inset by margin */
         }
 
         .message-content li {
@@ -731,12 +735,34 @@
             .theme-toggle { top: 0.75rem; right: 0.75rem; }
             /* iOS safe area padding to avoid UI overlap */
             .input-container { padding-bottom: max(0.25rem, env(safe-area-inset-bottom)); }
-        }\n    
-            .chat-header { padding: 1rem; }
-            .clear-chat-btn { left: 0.75rem; width: 36px; height: 36px; }
-            .clear-chat-btn::before { width: 18px; height: 18px; }
-            .clear-chat-btn::after { content: none; }
+        }
+
+        /* Small iPhones (e.g., iPhone SE 2nd gen, 375px) */
+        @media (max-width: 375px) {
+            body { padding: 0.75rem; }
+            .welcome-title { font-size: 1.5rem; margin-bottom: 1rem; }
+            .logo-container img { height: 38px; }
+            .suggestion-cards { gap: 0.75rem; }
+            .suggestion-card { padding: 1rem; }
+            .theme-toggle { top: 0.6rem; right: 0.6rem; }
+            .theme-icon { width: 20px; height: 20px; font-size: 1rem; }
+            .chat-input { padding: 0.85rem 2.8rem 0.85rem 0.9rem; font-size: 0.95rem; }
+            .send-button { width: 30px; height: 30px; }
+            .send-button svg { width: 16px; height: 16px; }
             .chat-header { padding: 0.85rem; }
             .clear-chat-btn { left: 0.5rem; width: 34px; height: 34px; }
             .clear-chat-btn::before { width: 17px; height: 17px; }
             .clear-chat-btn::after { content: none; }
+        }
+
+        /* Very small phones (legacy iPhone SE, 320px) */
+        @media (max-width: 340px) {
+            body { padding: 0.5rem; }
+            .welcome-title { font-size: 1.4rem; margin-bottom: 0.85rem; }
+            .suggestion-card { padding: 0.9rem; }
+            .theme-toggle { top: 0.5rem; right: 0.5rem; }
+            .theme-icon { width: 18px; height: 18px; font-size: 0.95rem; }
+            .chat-input { padding: 0.75rem 2.4rem 0.75rem 0.85rem; font-size: 0.93rem; }
+            .send-button { width: 28px; height: 28px; }
+            .send-button svg { width: 14px; height: 14px; }
+        }
